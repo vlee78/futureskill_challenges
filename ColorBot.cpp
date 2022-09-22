@@ -121,6 +121,77 @@ namespace solution {
           printf("line[%d] = '%s'\n", i, state[i].c_str());
         printf("=============================================\n");
       }
+      
+      string findNearWalkDir(int x, int y, char color, vector<string>& state)
+      {
+        printf("findNearWalkDir: x=%d, y=%d, color=%c\n", x, y, color);
+        dumpState(state, 0);
+        int width = (int)state[0].size();
+        int height = (int)state.size();
+        int minSteps = -1;
+        int minX = 0;
+        int minY = 0;
+        for (int i = 0; i < height; i++)
+        {
+          for (int j = 0; j < width; j++)
+          {
+            if (j == x && i == y)
+              continue;
+            char ch = state[i][j];
+            if (ch == color || color - ch == 'C' - 'c' || (ch >= 'A' && ch <= 'Z'))
+              continue;
+            int steps = (x - j < 0 ? j - x : x - j) + (y - i < 0 ? i - y : y - i);
+            if (minSteps == -1 || steps < minSteps)
+            {
+              minSteps = steps;
+              minX = j;
+              minY = i;
+            }
+          }
+        }
+        int xsteps = minX - x;
+        int ysteps = minY - y;
+        printf("findNearWalkDir: minX=%d, minY=%d, xsteps=%d, ysteps=%d\n", minX, minY, xsteps, ysteps);
+        string dir = "";
+        if (xsteps >= 0 && ysteps >= 0)
+        {
+          if (xsteps > ysteps)
+            dir = "E";
+          else if (xsteps < ysteps)
+            dir = "N";
+          else
+            dir = "NE";
+        }
+        else if (xsteps >= 0 && ysteps < 0)
+        {
+          if (xsteps > -ysteps)
+            dir = "E";
+          else if (xsteps < -ysteps)
+            dir = "S";
+          else
+            dir = "SE";
+        }
+        else if (xsteps < 0 && ysteps >= 0)
+        {
+          if (-xsteps > ysteps)
+            dir = "W";
+          else if (-xsteps < ysteps)
+            dir = "N";
+          else
+            dir = "NW";
+        }
+        else if (xsteps < 0 && ysteps < 0)
+        {
+          if (-xsteps > -ysteps)
+            dir = "W";
+          else if (-xsteps < -ysteps)
+            dir = "S";
+          else
+            dir = "SW";
+        }
+        printf("findNearWalkDir: %s\n", dir.c_str());
+        return dir;
+      }
     
       /**
        * Execute a single move of the bot's programming. This function will be
@@ -146,6 +217,9 @@ namespace solution {
             maxDiff = diff;
           }
         }
+        
+        if (maxDiff == 0)
+          maxDir = findNearWalkDir(x, y, color[0], gameState);
         
         vector<string> returnValue(2);
         returnValue[0] = "walk";
